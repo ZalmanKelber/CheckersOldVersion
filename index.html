@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="eng">
+    <head>
+        <title>Checkers</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <header>
+                <h1>CHECKERS</h1>
+        </header>
+        <div class="horizontal-divider"></div>
+        <main>
+            <div class="side-parameters">
+                <form id="form" class="form">
+                    <h2>Select Rules</h2>
+                    <input class="button" type="radio" id="rule1" name="rules" value="move-freely">
+                    <label for="rule1"> Move freely</label><br><br>
+                    <input class="button" type="radio" id="rule2" name="rules" value="must-jump">
+                    <label for="rule2"> Must jump when possible</label><br><br>
+                    <input class="button" type="radio" id="rule3" name="rules" value="must-jump-again">
+                    <label for="rule3"> Must jump until end of path</label><br><br>
+                    <input class="button" type="radio" id="rule4" name="rules" value="must-jump-longest">
+                    <label for="rule4"> Must jump longest path</label><br><br><br>
+                    <input class="button" type="submit" value="START NEW GAME">
+                </form>
+            </div>
+            <div class="vertical-divider"></div>
+            <div class="game-area">
+                <div class="captured">
+                    <div class="holder captured-reds" id="a"></div><div class="holder captured-reds" id="b"></div><div class="holder captured-reds" id="c"></div>
+                    <div class="holder captured-reds" id="d"></div><div class="holder captured-reds" id="e"></div><div class="holder captured-reds" id="f"></div>
+                    <div class="holder captured-reds" id="g"></div><div class="holder captured-reds" id="h"></div><div class="holder captured-reds" id="i"></div>
+                    <div class="holder captured-reds" id="j"></div><div class="holder captured-reds" id="j"></div><div class="holder captured-reds" id="k"></div>
+                </div>
+                <div class="board-outer-container">
+                    <div class="board-innter-container">
+                        <div class="board">
+                            <div class="square red" id="70"></div><div class="square black" id="71"></div>
+                            <div class="square red" id="72"></div><div class="square black" id="73"></div>
+                            <div class="square red" id="74"></div><div class="square black" id="75"></div>
+                            <div class="square red" id="76"></div><div class="square black" id="77"></div>
+                            <div class="square black" id="60"></div><div class="square red" id="61"></div>
+                            <div class="square black" id="62"></div><div class="square red" id="63"></div>
+                            <div class="square black" id="64"></div><div class="square red" id="65"></div>
+                            <div class="square black" id="66"></div><div class="square red" id="67"></div>
+                            <div class="square red" id="50"></div><div class="square black" id="51"></div>
+                            <div class="square red" id="52"></div><div class="square black" id="53"></div>
+                            <div class="square red" id="54"></div><div class="square black" id="55"></div>
+                            <div class="square red" id="56"></div><div class="square black" id="57"></div>
+                            <div class="square black" id="40"></div><div class="square red" id="41"></div>
+                            <div class="square black" id="42"></div><div class="square red" id="43"></div>
+                            <div class="square black" id="44"></div><div class="square red" id="45"></div>
+                            <div class="square black" id="46"></div><div class="square red" id="47"></div>
+                            <div class="square red" id="30"></div><div class="square black" id="31"></div>
+                            <div class="square red" id="32"></div><div class="square black" id="33"></div>
+                            <div class="square red" id="34"></div><div class="square black" id="35"></div>
+                            <div class="square red" id="36"></div><div class="square black" id="37"></div>
+                            <div class="square black" id="20"></div><div class="square red" id="21"></div>
+                            <div class="square black" id="22"></div><div class="square red" id="23"></div>
+                            <div class="square black" id="24"></div><div class="square red" id="25"></div>
+                            <div class="square black" id="26"></div><div class="square red" id="27"></div>
+                            <div class="square red" id="10"></div><div class="square black" id="11"></div>
+                            <div class="square red" id="12"></div><div class="square black" id="13"></div>
+                            <div class="square red" id="14"></div><div class="square black" id="15"></div>
+                            <div class="square red" id="16"></div><div class="square black" id="17"></div>
+                            <div class="square black" id="00"></div><div class="square red" id="01"></div>
+                            <div class="square black" id="02"></div><div class="square red" id="03"></div>
+                            <div class="square black" id="04"></div><div class="square red" id="05"></div>
+                            <div class="square black" id="06"></div><div class="square red" id="07"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="captured">
+                    <div class="holder captured-blacks" id="l"></div><div class="holder captured-blacks" id="m"></div><div class="holder captured-blacks" id="n"></div>
+                    <div class="holder captured-blacks" id="o"></div><div class="holder captured-blacks" id="p"></div><div class="holder captured-blacks" id="q"></div>
+                    <div class="holder captured-blacks" id="r"></div><div class="holder captured-blacks" id="s"></div><div class="holder captured-blacks" id="t"></div>
+                    <div class="holder captured-blacks" id="u"></div><div class="holder captured-blacks" id="v"></div><div class="holder captured-blacks" id="w"></div>
+                </div>
+            </div>
+        </main>
+    </body>
+    <script type="module" src="/js/main.js"></script>
+</html>
