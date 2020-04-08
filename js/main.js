@@ -1,8 +1,9 @@
-import { possibleMoves, modifyPossibleMoves} from "/js/checkers.js";
+import { possibleMoves, modifyPossibleMoves, updateBoard, arrayDeepCopy, arrayDeepEqual, score, bestMove } from "/js/checkers.js";
 import { setBoard, isTurn, nextPositionsInTurn, addToPath, narrowDownMoves } from "/js/utils.js";
 
 var r = "r", rk = "rk", b = "b", bk = "bk", e = '';
 var black = -1, red = 1;
+const opponent = black;
 
 var rules = {
     "moveFreely": false,
@@ -78,18 +79,18 @@ function startGame(board, turn) {
 
 function startTurn () {
     movesArray = modifyPossibleMoves(possibleMoves(board, turn[0]), rules);
-    console.log(movesArray);
+    if (turn[0] === opponent) {
+        automateTurn();
+    } 
     if (movesArray.length === 0) {
         endGame(turn[0] * -1);
     }
     var occupiedSquares = document.querySelectorAll(".occupied");
-    console.log(occupiedSquares.length);
     var unoccupied = document.querySelectorAll(".black");
     for (var i = 0; i < occupiedSquares.length; i++) {
         const occupied = occupiedSquares[i];
         if (isTurn(occupied, turn[0])) {
             var occupiedID = occupied.getAttribute('id');
-            console.log(occupiedID);
             occupied.setAttribute("draggable", true);
             occupied.addEventListener("dragstart", dragStart);
             occupied.addEventListener("dragend", dragEnd);
@@ -238,6 +239,33 @@ function endTurn () {
     startTurn();
 }
 
+function automateTurn () {
+    movesArray = modifyPossibleMoves(possibleMoves(board, turn[0]), rules);
+    var movesArrayCopy = arrayDeepCopy(movesArray);
+    var autoMove = bestMove(movesArrayCopy, board, rules, turn[0]);
+    var pieceToMoveID = String(autoMove[0][0]) + String(autoMove[0][1]) + "child";
+    var autoPiece = document.getElementById(pieceToMoveID);
+    var destinationID = String(autoMove[autoMove.length - 1][0]) + String(autoMove[autoMove.length - 1][1]);
+    var destinationSquare = document.getElementById(destinationID);
+    autoPiece.setAttribute("id", destinationID + "child");
+    destinationSquare.appendChild(autoPiece);
+    var pieceType = board[autoMove[0][0]][autoMove[0][1]];
+    if (autoMove.length > 2) {
+        for (var i = 1; i < autoMove.length; i+= 2) {
+            capturePiece(autoMove[i]);
+        }
+    }
+    if (autoMove[autoMove.length - 1][0] === board.length - 1 && pieceType === "r" && redCaptured[0] >= 1) {
+        makeKing(autoMove[autoMove.length - 1][0], autoMove[autoMove.length - 1][1]);
+    }
+    if (autoMove[autoMove.length - 1][0] === 0 && pieceType === "b" && blackCaptured[0] >= 1) {
+        makeKing(autoMove[autoMove.length - 1][0], autoMove[autoMove.length - 1][1]);
+    }
+    board = updateBoard(board, autoMove);
+    turn[0] *= -1;
+    startTurn();
+}
+
 function endGame (winner) {
     if (winner === 1) {
         console.log("RED WINS");
@@ -263,12 +291,10 @@ function capturePiece (position) {
     if (capturedClass === "occupied r" || capturedClass === "occupied rk") {
         pieceColor = 1;
         redCaptured[0] += pieceQuantity;
-        console.log(redCaptured);
     }
     else {
         pieceColor = -1;
         blackCaptured[0] += pieceQuantity;
-        console.log(blackCaptured);
     }
 
     var cellsArray = [];
@@ -309,7 +335,6 @@ function capturePiece (position) {
 }
 
 function makeKing (x, y) {
-    console.log("function called");
     var kingID = String(x) + String(y) + "child";
     var kingElement = document.getElementById(kingID);
     kingElement.className += "k";
@@ -331,6 +356,13 @@ function makeKing (x, y) {
                 occupiedCells.push(cellElement.firstElementChild);
             }
         }
-    var elementToRemove = occupiedCells[0];
+        var elementToRemove;
+        if (turn[0] === 1) {
+            elementToRemove = occupiedCells[0];
+        }
+        else {
+            elementToRemove = occupiedCells[occupiedCells.length - 1];
+        }
     elementToRemove.remove();
 }
+

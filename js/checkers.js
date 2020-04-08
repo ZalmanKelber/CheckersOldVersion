@@ -154,4 +154,158 @@ function isSubset(move1, move2) {
     return isSubset;
 }
 
+export function arrayDeepCopy (arr) {
+    var newArray = [];
+    if (!Array.isArray(arr)) {
+        return arr;
+    }
+    for (var i = 0; i < arr.length; i++) {
+        newArray.push(arrayDeepCopy(arr[i]));
+    }
+    return newArray;
+}
+
+export function arrayDeepEqual (arr1, arr2) {
+    if (!Array.isArray(arr1)) {
+        return arr1 === arr2;
+    }
+    if (!Array.isArray(arr2)) {
+        return false;
+    }
+    if (arr1.length != arr2.length) {
+        return false;
+    }
+    else {
+        for (var i = 0; i < arr1.length; i++) {
+            if (!arrayDeepEqual(arr1[i], arr2[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+function totalOnBoard (board, color) {
+    var total = 0;
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board.length; j++) {
+            if ((board[i][j] === "r" && color === 1) || (board[i][j] === "b" && color === -1)) {
+                total++;
+            }
+            if ((board[i][j] === "rk" && color === 1) || (board[i][j] === "bk" && color === -1)) {
+                total += 2;
+            }
+        }
+    }
+    return total;
+}
+
+export function score (board, color) {
+    var score = totalOnBoard(board, color) - totalOnBoard(board, color * -1);
+    if (possibleMoves(board, color).length === 0) {
+        score = -13;
+    }
+    if (possibleMoves(board, color * -1).length === 0) {
+        score = 13;
+    }
+    return score;
+}
+
+export function updateBoard (board, move) {
+    var newBoard = arrayDeepCopy(board);
+    var pieceType = board[move[0][0]][move[0][1]];
+    for (var i = 0; i < move.length - 1; i++) {
+        newBoard[move[i][0]][move[i][1]] = "";
+    }
+    newBoard[move[move.length - 1][0]][move[move.length - 1][1]] = pieceType;
+    if (pieceType === "r" && move[move.length - 1][0] === newBoard.length - 1 && totalOnBoard(newBoard, 1) < 12) {
+        newBoard[move[move.length - 1][0]][move[move.length - 1][1]] = "rk";
+    }
+    if (pieceType === "b" && move[move.length - 1][0] === 0 && totalOnBoard(newBoard, -1) < 12) {
+        newBoard[move[move.length - 1][0]][move[move.length - 1][1]] = "bk";
+    }
+    return newBoard;
+}
+
+export function bestMove (movesArrayForFunction, board, rules, turn) {
+    var boardCopy = arrayDeepCopy(board);
+    var numberOfTurns = 5;
+    var turnClone = turn;
+    for (var i = 0; i < movesArrayForFunction.length; i++) {
+        movesArrayForFunction[i] = [movesArrayForFunction[i], updateBoard(boardCopy, movesArrayForFunction[i])];
+    }
+    for (var i = 0; i < numberOfTurns - 1; i++) {
+        turnClone *= -1;
+        var nextMovesArray = [];
+        for (var j = 0; j < movesArrayForFunction.length; j++) {
+            var nextBoard = arrayDeepCopy(movesArrayForFunction[j][movesArrayForFunction[j].length - 1])
+            var nextBoardMovesArray = modifyPossibleMoves(possibleMoves(nextBoard, turnClone), rules);
+            if (nextBoardMovesArray.length === 0) {
+                nextBoardMovesArray = [[0, 0], [0, 0]];
+            }
+            for (var k = 0; k < nextBoardMovesArray.length; k++) {
+                var nextMove = arrayDeepCopy(nextBoardMovesArray[k]);
+                var moveSequence = arrayDeepCopy(movesArrayForFunction[j]);
+                moveSequence.push(nextMove);
+                moveSequence.push(updateBoard(nextBoard, nextMove));
+                nextMovesArray.push(moveSequence);
+            }
+        }
+        movesArrayForFunction = arrayDeepCopy(nextMovesArray);
+        console.log(movesArrayForFunction.length);
+    }
+    var movesArrayWithScores = []
+    for (var i = 0; i < movesArrayForFunction.length; i++) {
+        movesArrayWithScores.push([movesArrayForFunction[i], score(movesArrayForFunction[i][movesArrayForFunction[i].length - 1], turn)])
+    }
+    for (var i = numberOfTurns - 2; i >= 0; i--) {
+        movesArrayWithScores.push([0]);
+        var index = i * 2;
+        var narrowerPossibleMoves = [];
+        var leaderMoveSequence = movesArrayWithScores[0];
+        var moveSequenceBundle = [];
+        for (var j = 0; j < movesArrayWithScores.length; j++) {
+            var moveSequence = movesArrayWithScores[j];
+            var equalPath = true;
+            for (var k = 0; k <= index; k += 2) {
+                if (!arrayDeepEqual(moveSequence[0][index], leaderMoveSequence[0][index])) {
+                    equalPath = false;
+                }
+            }
+            if (equalPath) {
+                moveSequenceBundle.push(moveSequence);
+            }
+            else {
+                var pertinentMoveSequence = moveSequenceBundle[0];
+                var pertinentScore = moveSequenceBundle[0][1];
+                for (var k = 1; k < moveSequenceBundle.length; k++) {
+                    if ((moveSequenceBundle[k][1] < pertinentScore && i % 2 === 0) || (moveSequenceBundle[k][1] > pertinentScore && i % 2 === 1)) {
+                        pertinentScore = moveSequenceBundle[k][1];
+                        pertinentMoveSequence = moveSequenceBundle[k]
+                    }
+                }
+                narrowerPossibleMoves.push(pertinentMoveSequence);
+                leaderMoveSequence = movesArrayWithScores[j];
+                moveSequenceBundle = [];
+                moveSequenceBundle.push(movesArrayWithScores[j]);
+            }
+        }
+    movesArrayWithScores = narrowerPossibleMoves; 
+    }
+    var bestMove = movesArrayWithScores[0][0][0];
+    var bestPertinentScore = movesArrayWithScores[0][1];
+    for (var i = 0; i < movesArrayWithScores.length; i++) {
+        if (movesArrayWithScores[i][1] > bestPertinentScore) {
+            bestPertinentScore = movesArrayWithScores[i][1];
+            bestMove = movesArrayWithScores[i][0][0];
+        }
+    }
+    console.log("best score:");
+    console.log(bestPertinentScore);
+    console.log("best move:");
+    console.log(bestMove);
+    var bestMoveCopy = arrayDeepCopy(bestMove);
+    return bestMoveCopy;
+}
+
 
